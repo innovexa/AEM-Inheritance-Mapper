@@ -22,7 +22,7 @@ This project allows you to create a diagram of **inheritance** and **composition
 
   Example:
 
-  `java -jar AEMComponentArchitectureGraph-0.1.jar ui.apps/src/main/jcr_root/apps/company/components/content`
+  `java -jar AEMComponentArchitectureGraph-0.1.jar ui.apps/src/main/jcr_root/apps/company/components`
 
 ## License
 

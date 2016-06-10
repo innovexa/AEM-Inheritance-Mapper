@@ -24,6 +24,8 @@ This project allows you to create a diagram of **inheritance** and **composition
 
   `java -jar AEMComponentArchitectureGraph-0.1.jar ui.apps/src/main/jcr_root/apps/company/components`
 
+3. Creates `composition_graph.png` and `inheritance_graph.png` in the local directory
+
 ## License
 
 see [LICENSE](https://raw.githubusercontent.com/innovexa/AEMComponentArchitectureGraph/master/LICENSE)

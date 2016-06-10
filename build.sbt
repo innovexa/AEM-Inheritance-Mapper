@@ -1,4 +1,4 @@
-name := """AEMComponentArchitectureGrapher"""
+name := """AEMComponentArchitectureGraph"""
 
 version := "1.0"
 

@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream
 
 import com.innovexa.Utils.{FileUtils, GraphVizUtils, JSoupUtils}
 
+import scala.collection.immutable.HashMap
 import scala.sys.process._
 
 object AEMComponentArchitectureGraph {
@@ -16,15 +17,18 @@ object AEMComponentArchitectureGraph {
     buildCompositionGraph(args.head)
 
     buildInheritanceGraph(args.head)
+
   }
 
   def buildCompositionGraph(AEMDirectory: String):Unit = {
     val fileList = FileUtils.getListOfAllComponentHTMLFilesFromProject(AEMDirectory)
+    val graphVizOptions = Some(
+      """labelloc=t; label="AEM Architecture Graph - Composition"; fontsize=30;""")
 
     val elementsList = JSoupUtils.getListOfDependantComponents(fileList)
 
     val completeDotFormattedString =
-      GraphVizUtils.getDotFormattedStringUsingListOfDependantComponents(elementsList)
+      GraphVizUtils.getCompositionDotFormattedString(elementsList, graphVizOptions)
 
     val baInputStream = new ByteArrayInputStream(completeDotFormattedString.getBytes("UTF-8"))
     val out = ("dot -Tpng -o composition_graph.png" #< baInputStream).!
@@ -38,11 +42,19 @@ object AEMComponentArchitectureGraph {
 
   def buildInheritanceGraph(AEMDirectory: String):Unit = {
     val fileList = FileUtils.getListOfAllComponentContentXMLFilesFromProject(AEMDirectory)
+    val graphVizOptions = Some(
+      """labelloc=t; label="AEM Architecture Graph - Inheritance"; fontsize=30;""")
 
     val elementsList = JSoupUtils.getListOfInheritedComponents(fileList)
 
+    val componentPathToTitle = JSoupUtils.getHashMapOfComponentPathToTitle(fileList)
+
     val completeDotFormattedString =
-      GraphVizUtils.getDotFormattedStringUsingListOfDependantComponents(elementsList)
+      GraphVizUtils.getInheritanceDotFormattedString(
+        elementsList,
+        componentPathToTitle,
+        graphVizOptions)
+
 
     val baInputStream = new ByteArrayInputStream(completeDotFormattedString.getBytes("UTF-8"))
     val out = ("dot -Tpng -o inheritance_graph.png" #< baInputStream).!

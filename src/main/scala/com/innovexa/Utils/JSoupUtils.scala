@@ -4,6 +4,8 @@ import java.io.File
 
 import org.jsoup.Jsoup
 
+import scala.collection.immutable.HashMap
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 class JSoupUtils {
@@ -13,6 +15,14 @@ class JSoupUtils {
       .findFirstMatchIn(xmlFileContent)
       .map(_ group 1)
       .getOrElse("MEGASuperType")
+  }
+
+  protected def getComponentTitleFromXMLFileContents(xmlFileContent: String):String = {
+    val slingResourceSuperTypeAttributeRegex = """jcr:title="(.*?)"""".r
+    slingResourceSuperTypeAttributeRegex
+      .findFirstMatchIn(xmlFileContent)
+      .map(_ group 1)
+      .getOrElse("<NoTitle>")
   }
 
   protected def getComponentJCRPathFromFilePath(componentXMLFilePath: String):String = {
@@ -77,5 +87,18 @@ object JSoupUtils extends JSoupUtils{
         (getSlingResourceSuperTypeFromXMLFileContents(xmlFileContents),
           getComponentJCRPathFromFilePath(componentXMLFile.getAbsolutePath))
       })
+  }
+
+  def getHashMapOfComponentPathToTitle(componentXMLFiles: List[File]):HashMap[String, String] = {
+    var componentPathMapToTitle = new mutable.HashMap[String, String]()
+    componentXMLFiles
+      .foreach(componentXMLFile => {
+        val xmlFileContents = scala.io.Source.fromFile(componentXMLFile.getAbsolutePath, "utf-8").getLines.mkString
+        componentPathMapToTitle +=
+          (getComponentJCRPathFromFilePath(componentXMLFile.getAbsolutePath)
+            ->
+            getComponentTitleFromXMLFileContents(xmlFileContents))
+      })
+    HashMap(componentPathMapToTitle.toSeq:_*)
   }
 }

@@ -43,13 +43,10 @@ object AEMComponentArchitectureGraph {
 
   def buildInheritanceGraph(AEMDirectory: String):Unit = {
     val fileList = FileUtils.getListOfAllComponentContentXMLFilesFromProject(AEMDirectory)
-    val graphVizOptions = Some(
-      """labelloc=t; label="AEM Component Architecture Graph - Inheritance"; fontsize=30;""")
 
     val components = JSoupUtils.getListOfInheritanceComponentObjects(fileList)
 
-    val completeDotFormattedString =
-      GraphVizUtils.getInheritanceDotFormattedString(components, graphVizOptions)
+    val completeDotFormattedString = GraphVizUtils.getInheritanceDotFormattedString(components, None)
     println(completeDotFormattedString)
 
 

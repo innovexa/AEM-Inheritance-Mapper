@@ -37,6 +37,17 @@ class GraphVizUtils {
 
     definedColorList.toStream #::: infiniteTailList
   }
+
+  protected def getTitleOfGraph(title: String):String = {
+    s"""
+      labelloc = t
+      label = <<table border="0" cellspacing="0">
+        <tr><td border="0"><font point-size="30">${title}</font></td></tr>
+        <tr><td border="0" href="https://github.com/innovexa/AEMComponentArchitectureGraph"><font point-size="15">
+        |Created using https://github.com/innovexa/AEMComponentArchitectureGraph</font></td></tr>
+        </table>>
+    """.stripMargin
+  }
 }
 
 object GraphVizUtils extends GraphVizUtils{
@@ -45,12 +56,14 @@ object GraphVizUtils extends GraphVizUtils{
     var stringListBuffer = new ListBuffer[String]()
     val graphVizOptions = receivedGraphVizOptions.getOrElse("")
     val componentGroupToColorsMap = createMapOfComponentGroupsToColors(listOfDependantComponents)
+    val titleLabel = getTitleOfGraph("AEM Component Architecture Graph - Inheritance")
     val DEFAULT_SUPERTYPE = "MegaSuperType"
 
     stringListBuffer +=
     s"""digraph {
       rankdir = LR
       ${graphVizOptions}
+      ${titleLabel}
       ${DEFAULT_SUPERTYPE}[
         label = "${DEFAULT_SUPERTYPE}"
         fontsize = 20

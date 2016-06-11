@@ -2,38 +2,43 @@ package com.innovexa.Utils
 
 import java.io.File
 
+import com.innovexa.Models.Component
 import org.jsoup.Jsoup
 
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.util.matching.Regex
 
 class JSoupUtils {
-  protected def getSlingResourceSuperTypeFromXMLFileContents(xmlFileContent: String):String = {
-    val slingResourceSuperTypeAttributeRegex = """sling:resourceSuperType="(.*?)"""".r
-    slingResourceSuperTypeAttributeRegex
-      .findFirstMatchIn(xmlFileContent)
+  case class JCRPathNotFoundException(message: String) extends Exception(message)
+
+  private def getFirstRegexMatchInStringWithDefault(contents: String, regex: Regex):Option[String] = {
+    regex
+      .findFirstMatchIn(contents)
       .map(_ group 1)
-      .getOrElse("MEGASuperType")
   }
 
-  protected def getComponentTitleFromXMLFileContents(xmlFileContent: String):String = {
-    val slingResourceSuperTypeAttributeRegex = """jcr:title="(.*?)"""".r
-    slingResourceSuperTypeAttributeRegex
-      .findFirstMatchIn(xmlFileContent)
-      .map(_ group 1)
-      .getOrElse("<NoTitle>")
+  protected def getSlingResourceSuperTypeFromXMLFileContents(xmlFileContent: String):Option[String] = {
+    getFirstRegexMatchInStringWithDefault(xmlFileContent, """sling:resourceSuperType="(.*?)"""".r)
   }
 
-  protected def getComponentJCRPathFromFilePath(componentXMLFilePath: String):String = {
-    val regexForJCRPathFromFilePath = """jcr_root[\/\\]apps[\/\\](.*?components[\/\\]content[\/\\].*?)[\/\\]""".r
-    regexForJCRPathFromFilePath
-      .findFirstMatchIn(componentXMLFilePath)
-      .map(_ group 1)
-      .getOrElse("Error")
+  protected def getComponentGroupFromXMLFileContents(xmlFileContent: String):Option[String] = {
+    getFirstRegexMatchInStringWithDefault(xmlFileContent, """componentGroup="(.*?)"""".r)
+  }
+
+  protected def getComponentTitleFromXMLFileContents(xmlFileContent: String):Option[String] = {
+    getFirstRegexMatchInStringWithDefault(xmlFileContent, """jcr:title="(.*?)"""".r)
+  }
+
+  protected def getComponentJCRPathFromFilePath(componentXMLFilePath: String):Option[String] = {
+    getFirstRegexMatchInStringWithDefault(componentXMLFilePath,
+      """jcr_root[\/\\]apps[\/\\](.*?components[\/\\]content[\/\\].*?)[\/\\]""".r)
   }
 
   protected def getComponentNameFromPath(pathToHtmlFile: String):String = {
+    // Example: /hello/world/component/hello.xml
+    // result: component
     val splitPath:Array[String] = pathToHtmlFile.split("/")
     val indexOfSecondLastElement = splitPath.length - 2
     splitPath(indexOfSecondLastElement)
@@ -80,16 +85,28 @@ object JSoupUtils extends JSoupUtils{
       })
   }
 
-  def getListOfInheritedComponents(componentXMLFiles: List[File]):List[(String, String)] = {
+  def getListOfInheritanceComponentObjects(componentXMLFiles: List[File]):List[Component] = {
     componentXMLFiles
       .map(componentXMLFile => {
         val xmlFileContents = scala.io.Source.fromFile(componentXMLFile.getAbsolutePath, "utf-8").getLines.mkString
-        (getSlingResourceSuperTypeFromXMLFileContents(xmlFileContents),
-          getComponentJCRPathFromFilePath(componentXMLFile.getAbsolutePath))
+
+        val jcrPathForComponent =
+          getComponentJCRPathFromFilePath(componentXMLFile.getAbsolutePath) match {
+          case None =>
+            throw new JCRPathNotFoundException("Could not get the JCR path from filename for file: " +
+              componentXMLFile.getAbsolutePath)
+          case Some(jcrPath) => jcrPath
+        }
+
+        val resourceSuperType = getSlingResourceSuperTypeFromXMLFileContents(xmlFileContents)
+        val titleForComponent = getComponentTitleFromXMLFileContents(xmlFileContents)
+        val componentGroupForComponent = getComponentGroupFromXMLFileContents(xmlFileContents)
+
+        new Component(jcrPathForComponent, resourceSuperType, titleForComponent, componentGroupForComponent)
       })
   }
 
-  def getHashMapOfComponentPathToTitle(componentXMLFiles: List[File]):HashMap[String, String] = {
+/*  def getHashMapOfComponentPathToTitle(componentXMLFiles: List[File]):HashMap[String, String] = {
     var componentPathMapToTitle = new mutable.HashMap[String, String]()
     componentXMLFiles
       .foreach(componentXMLFile => {
@@ -97,8 +114,8 @@ object JSoupUtils extends JSoupUtils{
         componentPathMapToTitle +=
           (getComponentJCRPathFromFilePath(componentXMLFile.getAbsolutePath)
             ->
-            getComponentTitleFromXMLFileContents(xmlFileContents))
+
       })
     HashMap(componentPathMapToTitle.toSeq:_*)
-  }
+  }*/
 }

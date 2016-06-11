@@ -1,28 +1,49 @@
 package com.innovexa.Utils
 
-import scala.collection.immutable.HashMap
+import com.innovexa.Models.Component
+
 import scala.collection.mutable.ListBuffer
 
 class GraphVizUtils {
-  protected def getComponentVertexFormatted(dependantComponentPath: String,
-                                            componentPathMapToTitle: HashMap[String, String]):String = {
-    val componentTitle = componentPathMapToTitle.getOrElse(dependantComponentPath, "<No Title>")
-    s""""${dependantComponentPath}"[label="${dependantComponentPath}\\n${componentTitle}"];""" + "\n"
+  protected def getComponentVertexFormatted(component: Component):String = {
+    val componentTitle = component.title.getOrElse("<No Title>")
+    val componentGroup = component.componentGroup.getOrElse("<No Group>")
+    s""""${component.jcrPath}"[
+        shape = none
+        label = <<table border="1" cellspacing="0">
+          <tr><td border="0"><font point-size="20">${componentTitle}</font></td></tr>
+          <tr><td border="0"><font point-size="15">${component.jcrPath}</font></td></tr>
+          <tr><td border="0"><font point-size="15">${componentGroup}</font></td></tr>
+          </table>>
+       ];""" + "\n"
   }
 }
 
 object GraphVizUtils extends GraphVizUtils{
-  def getInheritanceDotFormattedString(listOfDependantComponents: List[(String, String)],
-                                                          componentPathMapToTitle: HashMap[String, String],
-                                                          graphVizOptions: Option[String]):String = {
+  def getInheritanceDotFormattedString(listOfDependantComponents: List[Component],
+                                       receivedGraphVizOptions: Option[String]):String = {
     var stringListBuffer = new ListBuffer[String]()
-    stringListBuffer += "digraph { rankdir=LR; " + graphVizOptions.getOrElse("") + "\n"
-    listOfDependantComponents.foreach(componentAndDependancy => {
-      val componentFormattedVertex = getComponentVertexFormatted(componentAndDependancy._2, componentPathMapToTitle)
+    val graphVizOptions = receivedGraphVizOptions.getOrElse("")
+    val DEFAULT_SUPERTYPE = "MegaSuperType"
+    stringListBuffer +=
+    s"""digraph {
+      rankdir = LR
+      ${graphVizOptions}
+      ${DEFAULT_SUPERTYPE}[
+        label = "${DEFAULT_SUPERTYPE}"
+        fontsize = 20
+      ];
+    """
+
+    listOfDependantComponents.foreach(component => {
+      val vertexPropertiesInDotFormat = getComponentVertexFormatted(component)
+      val parentVertex = component.resourceSuperType.getOrElse(DEFAULT_SUPERTYPE)
       stringListBuffer +=
-        componentFormattedVertex +
-        s""""${componentAndDependancy._1}" -> "${componentAndDependancy._2}";""" + "\n"
+        vertexPropertiesInDotFormat +
+        s""""${parentVertex}" -> "${component.jcrPath}";
+         """
     })
+
     stringListBuffer += "}"
 
     stringListBuffer.toList.mkString("")

@@ -4,8 +4,8 @@
 /project/project/
 /project/target/
 /target/
-composition_graph.png
-inheritance_graph.png
+component_composition_graph.png
+component_inheritance_graph.png
 
 # Created by https://www.gitignore.io/api/vim,intellij,sbt,scala
 

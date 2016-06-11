@@ -48,6 +48,28 @@ class GraphVizUtils {
         </table>>
     """.stripMargin
   }
+
+  protected def getFoundationVertexDefinitions(listOfDependantComponents: List[Component]):String = {
+    val uniqueListOfSuperTypes = listOfDependantComponents.flatMap(_.resourceSuperType).distinct
+    val foundationSuperTypes = uniqueListOfSuperTypes.filter(_.startsWith("wcm"))
+    val stringListBuffer = new ListBuffer[String]()
+    stringListBuffer +=
+      """Granite[
+        fontsize = 20
+        ]""" + "\n"
+
+    foundationSuperTypes.foreach(superType => {
+      stringListBuffer +=
+        s""""${superType}"[
+          label = "${superType}"
+          fontsize = 20
+         ];
+
+         Granite -> "${superType}"
+        """ + "\n"
+    })
+    stringListBuffer.mkString
+  }
 }
 
 object GraphVizUtils extends GraphVizUtils{
@@ -57,6 +79,7 @@ object GraphVizUtils extends GraphVizUtils{
     val graphVizOptions = receivedGraphVizOptions.getOrElse("")
     val componentGroupToColorsMap = createMapOfComponentGroupsToColors(listOfDependantComponents)
     val titleLabel = getTitleOfGraph("AEM Component Architecture Graph - Inheritance")
+    val foundationVertexProperties = getFoundationVertexDefinitions(listOfDependantComponents)
     val DEFAULT_SUPERTYPE = "MegaSuperType"
 
     stringListBuffer +=
@@ -68,6 +91,8 @@ object GraphVizUtils extends GraphVizUtils{
         label = "${DEFAULT_SUPERTYPE}"
         fontsize = 20
       ];
+      "${DEFAULT_SUPERTYPE}" -> Granite
+      ${foundationVertexProperties}
     """
 
     listOfDependantComponents.foreach(component => {
@@ -81,7 +106,7 @@ object GraphVizUtils extends GraphVizUtils{
 
     stringListBuffer += "}"
 
-    stringListBuffer.toList.mkString("")
+    stringListBuffer.toList.mkString
   }
 
   def getCompositionDotFormattedString(listOfDependantComponents: List[(String, String)],

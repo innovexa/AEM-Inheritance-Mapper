@@ -20,7 +20,15 @@ class JSoupUtils {
   }
 
   protected def getSlingResourceSuperTypeFromXMLFileContents(xmlFileContent: String):Option[String] = {
-    getFirstRegexMatchInStringWithDefault(xmlFileContent, """sling:resourceSuperType="(.*?)"""".r)
+    val wcmPrefix = s"wcm${File.separator}"
+    val slingSuperType = getFirstRegexMatchInStringWithDefault(xmlFileContent, """sling:resourceSuperType="(.*?)"""".r)
+    slingSuperType.map(superType =>
+      if(superType.startsWith("foundation")) {
+        wcmPrefix + superType
+      }else {
+        superType
+      }
+    )
   }
 
   protected def getComponentGroupFromXMLFileContents(xmlFileContent: String):Option[String] = {

@@ -110,9 +110,18 @@ object GraphVizUtils extends GraphVizUtils{
   }
 
   def getCompositionDotFormattedString(listOfDependantComponents: List[(String, String)],
-                                       graphVizOptions: Option[String]):String = {
+                                       receivedGraphVizOptions: Option[String]):String = {
     var stringListBuffer = new ListBuffer[String]()
-    stringListBuffer += "digraph { rankdir=LR; " + graphVizOptions.getOrElse("") + "\n"
+    val graphVizOptions = receivedGraphVizOptions.getOrElse("")
+    val titleLabel = getTitleOfGraph("AEM Component Architecture Graph - Composition")
+
+    stringListBuffer +=
+    s"""digraph {
+        rankdir = LR
+        ${graphVizOptions}
+        ${titleLabel}
+    """
+
     listOfDependantComponents.foreach(componentAndDependancy => {
       stringListBuffer +=
           s""""${componentAndDependancy._1}" -> "${componentAndDependancy._2}";""" + "\n"

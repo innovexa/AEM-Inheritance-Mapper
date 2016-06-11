@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream
 
 import com.innovexa.Utils.{FileUtils, GraphVizUtils, JSoupUtils}
 
-import scala.collection.immutable.HashMap
 import scala.sys.process._
 
 object AEMComponentArchitectureGraph {
@@ -14,7 +13,7 @@ object AEMComponentArchitectureGraph {
       printHelpAndExit()
     }
 
-    //buildCompositionGraph(args.head)
+    buildCompositionGraph(args.head)
 
     buildInheritanceGraph(args.head)
 
@@ -22,13 +21,9 @@ object AEMComponentArchitectureGraph {
 
   def buildCompositionGraph(AEMDirectory: String):Unit = {
     val fileList = FileUtils.getListOfAllComponentHTMLFilesFromProject(AEMDirectory)
-    val graphVizOptions = Some(
-      """labelloc=t; label="AEM Component Architecture Graph - Composition"; fontsize=30;""")
+    val components = JSoupUtils.getListOfDependantComponents(fileList)
 
-    val elementsList = JSoupUtils.getListOfDependantComponents(fileList)
-
-    val completeDotFormattedString =
-      GraphVizUtils.getCompositionDotFormattedString(elementsList, graphVizOptions)
+    val completeDotFormattedString = GraphVizUtils.getCompositionDotFormattedString(components, None)
 
     val baInputStream = new ByteArrayInputStream(completeDotFormattedString.getBytes("UTF-8"))
     val outputFilename = "component_composition_graph.png"
@@ -47,7 +42,7 @@ object AEMComponentArchitectureGraph {
     val components = JSoupUtils.getListOfInheritanceComponentObjects(fileList)
 
     val completeDotFormattedString = GraphVizUtils.getInheritanceDotFormattedString(components, None)
-    println(completeDotFormattedString)
+    //println(completeDotFormattedString)
 
 
     val baInputStream = new ByteArrayInputStream(completeDotFormattedString.getBytes("UTF-8"))

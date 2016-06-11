@@ -105,17 +105,4 @@ object JSoupUtils extends JSoupUtils{
         new Component(jcrPathForComponent, resourceSuperType, titleForComponent, componentGroupForComponent)
       })
   }
-
-/*  def getHashMapOfComponentPathToTitle(componentXMLFiles: List[File]):HashMap[String, String] = {
-    var componentPathMapToTitle = new mutable.HashMap[String, String]()
-    componentXMLFiles
-      .foreach(componentXMLFile => {
-        val xmlFileContents = scala.io.Source.fromFile(componentXMLFile.getAbsolutePath, "utf-8").getLines.mkString
-        componentPathMapToTitle +=
-          (getComponentJCRPathFromFilePath(componentXMLFile.getAbsolutePath)
-            ->
-
-      })
-    HashMap(componentPathMapToTitle.toSeq:_*)
-  }*/
 }

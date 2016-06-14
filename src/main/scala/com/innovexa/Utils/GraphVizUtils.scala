@@ -1,5 +1,7 @@
 package com.innovexa.Utils
 
+import java.io.File
+
 import com.innovexa.Models.Component
 
 import scala.collection.mutable.ListBuffer
@@ -51,7 +53,9 @@ class GraphVizUtils {
 
   protected def getFoundationVertexDefinitions(listOfDependantComponents: List[Component]):String = {
     val uniqueListOfSuperTypes = listOfDependantComponents.flatMap(_.resourceSuperType).distinct
-    val foundationSuperTypes = uniqueListOfSuperTypes.filter(_.startsWith("wcm"))
+    val foundationSuperTypes = uniqueListOfSuperTypes.filter(superType => {
+      superType.startsWith("wcm" + File.separator) || superType.startsWith("foundation" + File.separator)
+    })
     val stringListBuffer = new ListBuffer[String]()
     stringListBuffer +=
       """Granite[

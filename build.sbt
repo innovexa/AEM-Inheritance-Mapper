@@ -1,8 +1,8 @@
 name := """AEMComponentArchitectureGraph"""
 
-version := "1.0"
+version := "0.2"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 mainClass in Compile := Some("com.innovexa.AEMComponentArchitectureGraph")
 
@@ -15,12 +15,12 @@ libraryDependencies += "org.jsoup" % "jsoup" % "1.9.2"
 //libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.3.11"
 
 lazy val commonSettings = Seq(
-  version := "1.0-SNAPSHOT",
+  version := "0.2",
   organization := "com.innovexa",
-  scalaVersion := "2.11.7"
+  scalaVersion := "2.11.8"
 )
 
-lazy val app = (project in file("app")).
+lazy val AEMComponentArchitectureGraph = (project in file("app")).
   settings(commonSettings: _*).
   settings(
     // your settings here

@@ -13,6 +13,10 @@ This project allows you to create a diagram of **inheritance** and **composition
 * [GraphViz](http://www.graphviz.org/)
 
   Must be runnable from the command line (`dot -V`)
+  
+  If using `OS X` and [homebrew](http://brew.sh/), then GraphViz can be installed using
+  
+  `brew install graphviz`
 
 ## Usage
 
@@ -26,13 +30,17 @@ This project allows you to create a diagram of **inheritance** and **composition
 
 3. Creates `composition_graph.png` and `inheritance_graph.png` in the local directory
 
-# Building Uber/Fat jar
+## Building Uber/Fat jar
 
 Must have [Activator](https://www.lightbend.com/activator/download) installed and runnable from command line
 
   `activator --version` should work
+  
+If on `OS X` and using [Homebrew](http://brew.sh/) then activator can be install using
+  
+  `brew install typesafe-activator`
 
-Assembling the Fat/Uber jar with all dependancies included using
+Assembling the Fat/Uber jar with all dependancies included use
 
   `activator assembly`
 
